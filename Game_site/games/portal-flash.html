@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Portal Flash</title>
+  <style>
+    body {
+      background: gray;
+      border: solid 10px white;
+      height: 2000px;
+      padding: 20px;
+    }
+
+    button {
+      font-size: 50px;
+      padding: 20px;
+    }
+
+    portal {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      transform-origin: bottom left;
+      animation-name: animate-portal;
+      animation-duration: 2s;
+      animation-iteration-count: 1;
+      animation-fill-mode: both;
+      animation-timing-function: linear;
+    }
+
+    @keyframes animate-portal {
+      from {
+        transform: scale(0.2);
+      }
+
+      to {
+        transform: scale(1);
+      }
+    }
+  </style>
+</head>
+<body>
+  <button>Click me to create a portal</button>
+  <script>
+    function createPortal() {
+      const portal = document.createElement('portal');
+      portal.src = 'portal.html';
+      portal.addEventListener('animationend', e => {
+        portal.activate();
+      });
+
+      document.body.append(portal);
+      // portal.activate();
+    }
+
+    document.querySelector('button').addEventListener('click', createPortal);
+  </script>
+</body>
+</html>
