@@ -1,0 +1,84 @@
+.border{
+    /* border: 2px solid green; */
+}
+.margin{
+    margin: 2px;
+}
+.flex{
+    display: flex;
+}
+.justify-center{
+    justify-content: center;
+}
+.items-center{
+    align-items: center;
+}
+.justify-between{
+    justify-content:space-between;
+}
+.justify-around{
+    justify-content:space-around;
+}
+.bg-black{
+    background-color: black;
+}
+.bg-svg{
+    background-color: white;
+}
+.invert{
+    filter: invert(1);
+}
+.rounded{
+    border-radius: 7px;
+}
+.flex-col{
+    flex-direction: column;
+}
+.justify-end{
+    justify-content: end;
+}
+.invisibility{
+  visibility: hidden;
+}
+/* 1. Completely remove scrollbar arrows */
+::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  visibility: hidden;
+  opacity: 0;
+}
+
+/* 2. Remove corner space */
+::-webkit-scrollbar-corner {
+  display: none !important;
+  background: transparent !important;
+ visibility: hidden;
+  opacity: 0;
+}
+
+/* 3. Ultra-thin rectangular scrollbar */
+::-webkit-scrollbar {
+  width: 4px;  /* Thin vertical scrollbar */
+  height: 4px; /* Thin horizontal scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Invisible track */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c12d; /* Semi-transparent gray (30% opacity) */
+  border-radius: 0 !important; /* Rectangular (no rounding) */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8; /* Solid gray on hover */
+}
+
+/* 4. Firefox support */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c12d transparent; /* Semi-transparent thumb */
+}
