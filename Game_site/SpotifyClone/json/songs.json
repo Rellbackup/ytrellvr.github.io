@@ -1,0 +1,40 @@
+{
+  "albums": [
+    {
+      "name": "Hi Nana",
+      "artist": "Various Artists",
+      "songs": [
+        {"name": "Adigaa", "file": "Adigaa.mp3"},
+        {"name": "Ammaadi", "file": "Ammaadi.mp3"},
+        {"name": "Asalelaa", "file": "Asalelaa.mp3"},
+        {"name": "Chedhu Nijam", "file": "Chedhu%20Nijam.mp3"},
+        {"name": "Enno Enno", "file": "Enno%20Enno.mp3"},
+        {"name": "Needhe Needhe", "file": "Needhe%20Needhe.mp3"},
+        {"name": "Odiyamma", "file": "Odiyamma.mp3"},
+        {"name": "Samayama", "file": "Samayama.mp3"}
+      ]
+    },
+    {
+      "name": "Mahanati",
+      "artist": "Various Artists",
+      "songs": [
+        {"name": "Aagipo Baalyama", "file": "Aagipo%20Baalyama.mp3"},
+        {"name": "Chivaraku Migiledi", "file": "Chivaraku%20Migiledi.mp3"},
+        {"name": "Gelupuleni Samaram", "file": "Gelupuleni%20Samaram.mp3"},
+        {"name": "Mahanati", "file": "Mahanati.mp3"},
+        {"name": "Mooga Manasulu", "file": "Mooga%20Manasulu.mp3"},
+        {"name": "Sada Nannu", "file": "Sada%20Nannu.mp3"}
+      ]
+    },
+    {
+      "name": "Shyam Singa Roy",
+      "artist": "Various Artists",
+      "songs": [
+        {"name": "Pranavalaya", "file": "Pranavalaya.mp3"},
+        {"name": "Rise of Shyam", "file": "Rise%20of%20Shyam.mp3"},
+        {"name": "Sirivennala", "file": "Sirivennala.mp3"},
+        {"name": "Sirivennela (Female Version)", "file": "Sirivennela(Female%20Version).mp3"}
+      ]
+    }
+  ]
+}
