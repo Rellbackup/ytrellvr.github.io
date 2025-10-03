@@ -51,7 +51,7 @@ topics:
     image_url: "Game_Logo.png"
 
   - name: Web Proxy Server (WIP)
-    web_url: "tproxy/public/index.html"
+    web_url: "ByeBlock/Index.html"
     image_url: "images (1).png"
 
   - name: Apps (COMING SOON)
