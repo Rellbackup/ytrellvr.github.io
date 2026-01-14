@@ -47,7 +47,7 @@ projects:
   # youtube: RellVr
 topics:
   - name: GAMES
-    web_url: "Game_site/index.html"
+    web_url: "Game_site/passwordtest"
     image_url: "Game_Logo.png"
 
   - name: Web Proxy Server (WIP but mostly finnished)
