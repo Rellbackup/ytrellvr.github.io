@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GitHub Issues Chat (Pages)</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; max-width:900px; margin:2rem auto; padding:0 1rem; }
+    #top { display:flex; gap:1rem; align-items:center; margin-bottom:1rem; flex-wrap:wrap; }
+    #messages { border:1px solid #ddd; padding:1rem; min-height:240px; background:#fff; overflow:auto; }
+    .msg { margin:0 0 1rem 0; padding-bottom:0.5rem; border-bottom:1px dashed #eee; }
+    .meta { color:#666; font-size:0.9rem; display:flex; align-items:center; gap:0.5rem; margin-bottom:0.25rem; }
+    .avatar { width:28px; height:28px; border-radius:50%; vertical-align:middle; }
+    #composer { margin-top:1rem; display:flex; gap:0.5rem; }
+    #text { flex:1; padding:0.5rem; }
+    button { padding:0.45rem 0.6rem; }
+    input[type="password"], input[type="text"] { padding:0.4rem; }
+    #tokenField { width:40ch; }
+    .small { font-size:0.9rem; color:#444; }
+    a { color: #0366d6; }
+  </style>
+</head>
+<body>
+  <h1>GitHub Issues Chat</h1>
+
+  <div id="top">
+    <div class="small">Repo (owner/repo):</div>
+    <input id="owner" type="text" placeholder="owner" />
+    <input id="repo" type="text" placeholder="repo" />
+    <div class="small">Token:</div>
+    <input id="tokenField" type="password" placeholder="Paste your GitHub Personal Access Token (PAT)" />
+    <button id="saveToken">Save Token</button>
+    <button id="clearToken">Clear</button>
+    <a id="patLink" href="https://github.com/settings/tokens" target="_blank" rel="noopener">Get a token</a>
+  </div>
+
+  <div id="userArea" class="small">Not logged in.</div>
+
+  <div id="messages" aria-live="polite">Loading messages…</div>
+
+  <div id="composer" style="display:none;">
+    <input id="text" placeholder="Type a message..." />
+    <button id="send">Send</button>
+  </div>
+
+  <script>
+    // --- CONFIG: replace defaults or let the user fill owner/repo fields ---
+    const DEFAULT_OWNER = ""; // e.g. "your-username" or leave blank to require input
+    const DEFAULT_REPO = "";  // e.g. "username-chat" or leave blank to require input
+
+    // --- helpers ---
+    function escapeHtml(s = "") {
+      return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));
+    }
+
+    const ownerInput = document.getElementById('owner');
+    const repoInput = document.getElementById('repo');
+    const tokenField = document.getElementById('tokenField');
+    const saveTokenBtn = document.getElementById('saveToken');
+    const clearTokenBtn = document.getElementById('clearToken');
+    const patLink = document.getElementById('patLink');
+    const userArea = document.getElementById('userArea');
+    const messagesDiv = document.getElementById('messages');
+    const composer = document.getElementById('composer');
+    const textInput = document.getElementById('text');
+    const sendBtn = document.getElementById('send');
+
+    // load defaults
+    ownerInput.value = localStorage.getItem('chat_repo_owner') || DEFAULT_OWNER;
+    repoInput.value = localStorage.getItem('chat_repo_name') || DEFAULT_REPO;
+    tokenField.value = localStorage.getItem('chat_token') ? "••••••••" : "";
+
+    function getToken() {
+      return localStorage.getItem('chat_token') || null;
+    }
+
+    function saveToken(token) {
+      if (token) localStorage.setItem('chat_token', token);
+      else localStorage.removeItem('chat_token');
+      tokenField.value = token ? "••••••••" : "";
+    }
+
+    saveTokenBtn.addEventListener('click', async () => {
+      // If user pasted masked field, ask to re-paste
+      const raw = tokenField.value.trim();
+      if (!raw) {
+        alert("Paste your token (visible) into the token field before clicking Save.");
+        return;
+      }
+      // If they pasted masked dots, we need real token — so accept only if looks like a token (length)
+      // We'll save whatever they paste
+      saveToken(raw);
+      localStorage.setItem('chat_repo_owner', ownerInput.value.trim());
+      localStorage.setItem('chat_repo_name', repoInput.value.trim());
+      await loadUser();
+    });
+
+    clearTokenBtn.addEventListener('click', () => {
+      saveToken(null);
+      userArea.textContent = "Token cleared.";
+      composer.style.display = 'none';
+    });
+
+    ownerInput.addEventListener('change', () => localStorage.setItem('chat_repo_owner', ownerInput.value.trim()));
+    repoInput.addEventListener('change', () => localStorage.setItem('chat_repo_name', repoInput.value.trim()));
+
+    async function apiFetch(path, opts = {}) {
+      const token = getToken();
+      const headers = opts.headers || {};
+      headers['Accept'] = 'application/vnd.github.v3+json';
+      if (token) headers['Authorization'] = 'token ' + token;
+      const res = await fetch('https://api.github.com' + path, Object.assign({}, opts, { headers }));
+      return res;
+    }
+
+    async function loadUser() {
+      const token = getToken();
+      if (!token) {
+        userArea.innerHTML = 'Not logged in. To post a message you must <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">create a GitHub Personal Access Token</a> and paste it above. (Give it <code>public_repo</code> scope for public repos.)';
+        composer.style.display = 'none';
+        return;
+      }
+      userArea.textContent = 'Checking token…';
+      try {
+        const r = await apiFetch('/user');
+        if (!r.ok) {
+          userArea.textContent = 'Token invalid or not authorized to call the API. Recreate token with correct scope and paste it again.';
+          composer.style.display = 'none';
+          return;
+        }
+        const j = await r.json();
+        userArea.innerHTML = `<img src="${j.avatar_url}" class="avatar" style="width:20px;height:20px;border-radius:50%;vertical-align:middle;margin-right:6px" /> <strong>${escapeHtml(j.login)}</strong> — token OK.`;
+        composer.style.display = 'flex';
+      } catch (e) {
+        console.error(e);
+        userArea.textContent = 'Error checking token.';
+        composer.style.display = 'none';
+      }
+    }
+
+    async function loadMessages() {
+      messagesDiv.textContent = 'Loading messages…';
+      const owner = (ownerInput.value || '').trim();
+      const repo = (repoInput.value || '').trim();
+      if (!owner || !repo) {
+        messagesDiv.textContent = 'Enter owner and repo (top) and click Save Token (or leave token blank to just view).';
+        return;
+      }
+      try {
+        const url = `/repos/${owner}/${repo}/issues?labels=chat&state=all&sort=created&direction=asc&per_page=100`;
+        const res = await apiFetch(url);
+        if (!res.ok) {
+          messagesDiv.textContent = `Failed to load messages: ${res.status} ${res.statusText}`;
+          return;
+        }
+        const arr = await res.json();
+        messagesDiv.innerHTML = '';
+        for (const m of arr) {
+          const el = document.createElement('div');
+          el.className = 'msg';
+          el.innerHTML = `<div class="meta"><img class="avatar" src="${m.user?.avatar_url || ''}" alt="" /> <strong>${m.user?.login || 'unknown'}</strong> <span style="margin-left:8px;color:#777">${new Date(m.created_at).toLocaleString()}</span></div>
+                          <div class="body">${escapeHtml(m.body || '')}</div>
+                          <div style="margin-top:6px"><a href="${m.html_url}" target="_blank" rel="noopener">View on GitHub</a></div>`;
+          messagesDiv.appendChild(el);
+        }
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      } catch (err) {
+        console.error(err);
+        messagesDiv.textContent = 'Error loading messages';
+      }
+    }
+
+    async function sendMessage() {
+      const owner = (ownerInput.value || '').trim();
+      const repo = (repoInput.value || '').trim();
+      if (!owner || !repo) return alert('Set owner and repo first.');
+      const msg = textInput.value.trim();
+      if (!msg) return;
+      sendBtn.disabled = true;
+      try {
+        const res = await apiFetch(`/repos/${owner}/${repo}/issues`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }, // apiFetch merges Authorization header
+          body: JSON.stringify({
+            title: `chat message ${new Date().toISOString()}`,
+            body: msg,
+            labels: ['chat']
+          })
+        });
+        if (!res.ok) {
+          const txt = await res.text();
+          alert('Failed to send: ' + res.status + ' ' + txt);
+        } else {
+          textInput.value = '';
+          await loadMessages();
+        }
+      } catch (e) {
+        console.error(e);
+        alert('Failed to send message');
+      } finally {
+        sendBtn.disabled = false;
+      }
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    textInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+
+    // initial load: try to get token from localStorage
+    (function init(){
+      // load token if present into memory (not into visible field)
+      const stored = localStorage.getItem('chat_token');
+      if (stored) {
+        // don't show raw token in field for security; user can clear or overwrite
+        tokenField.value = "••••••••";
+      }
+      // owner/repo from localStorage already set above
+      loadUser();
+      loadMessages();
+      setInterval(loadMessages, 10000); // poll every 10s
+    })();
+
+    // Save token to localStorage when user presses Ctrl+Enter in token field (optional convenience)
+    tokenField.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 'Enter') {
+        const raw = tokenField.value.trim();
+        if (!raw) return;
+        localStorage.setItem('chat_token', raw);
+        tokenField.value = "••••••••";
+        loadUser();
+      }
+    });
+  </script>
+</body>
+</html>
