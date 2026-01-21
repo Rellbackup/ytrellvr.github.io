@@ -1,0 +1,9 @@
+GITHUB_CLIENT_ID=your_client_id_here
+GITHUB_CLIENT_SECRET=your_client_secret_here
+SESSION_SECRET=a_long_random_string
+REPO_OWNER=your-github-username-or-org
+REPO_NAME=repo-used-for-chat
+CALLBACK_URL=http://localhost:3000/auth/callback
+PORT=3000
+# If your repo is public, use scope "public_repo". If private, use "repo".
+GITHUB_OAUTH_SCOPE=public_repo
