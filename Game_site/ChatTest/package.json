@@ -1,12 +1,14 @@
 {
-  "name": "username-chat-demo",
+  "name": "github-issue-chat-backend",
   "version": "1.0.0",
-  "private": true,
-  "dependencies": {
-    "express": "^4.18.2",
-    "socket.io": "^4.7.2"
-  },
+  "type": "module",
   "scripts": {
     "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.7.0",
+    "node-fetch": "^3.4.1"
   }
 }
