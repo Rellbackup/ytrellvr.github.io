@@ -4,7 +4,7 @@ const textbox-input = document.getElementById('textbox-input');
 const targetDiv = document.getElementById('targetDiv');
 
 // Add an event listener to the form for the 'submit' event
-myForm.addEventListener('button', function(event) {
+textbox-form.addEventListener('button', function(event) {
     // Prevent the default form submission behavior (which reloads the page)
     event.preventDefault();
 
