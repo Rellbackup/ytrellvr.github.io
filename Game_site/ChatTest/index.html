@@ -5,16 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page Title</title>
 </head>
-<body>
+<style>
+.box{
+position: center;
+background: #FFFFFF;
+border: 1px solid #FF0A0A;
+color: #000000
+}
+
+</style>
+<body style="background-color: #6E6666">
+<font color="#FFFFFF">
+
+<form id=”display-form”>
+<label for=”displayname-input”>Display Name</label>
+<input type="displayname" id="displayname-input" required>
+</form>
+
   <form id="textbox-form">
     <label for="textbox-input">Text Box</label>
-  <input type="textbox" id="textbox-input" required>
-    <button type="enter">enter</button>
+  <input type="textbox" id="textbox-input">
+    <button type="button" id=”button”>Enter</button>
   </form>
-  <script>
 
-    const textboxInput = document.getElementById('password-input');
-    const textbox = textboxInput.value
-  </script>
+  
+<div id="targetDiv" class="box">
+
+</div>
+
+<script src="script.js"></script>
+
 </body>
 </html>
+
+
+
+
+
+
+
+
+
