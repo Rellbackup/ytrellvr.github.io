@@ -16,7 +16,10 @@ const middle = ": ";
         e.preventDefault();
 
         // Get the value from the input field
-const newText = `${displayInput.value}${middle}${textInput.value}`;
+const name = (displayInput && displayInput.value && displayInput.value.trim()) ? displayInput.value.trim() : 'Anonymous';
+    const msg = textInput.value || '';
+    const newText = `${name}${middle}${msg}`;
+
         
 
         // Check if the input is not empty
