@@ -1,22 +1,43 @@
-// Get references to the form, input, and target div elements
-const textbox-form = document.getElementById('textbox-form');
-const textbox-input = document.getElementById('textbox-input');
-const targetDiv = document.getElementById('targetDiv');
+// Wait for the DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', (event) => {
+    // Select the form, input, and output elements
+    const form = document.getElementById('textbox-form');
+    const textInput = document.getElementById('textbox-input');
+    const outputDiv = document.getElementById('outputDiv');
 
-// Add an event listener to the form for the 'submit' event
-textbox-form.addEventListener('button', function(event) {
-    // Prevent the default form submission behavior (which reloads the page)
-    event.preventDefault();
+const middle = ": ";
 
-    // Get the value typed into the input field
-    const typedValue = textbox-input.value;
+ const displayform = document.getElementById('display-form');
+    const displayInput = document.getElementById('displayname-input');
 
-    // Add the typed value as new text content inside the target div
-    // This example appends the new text, adding a line break for readability
-    targetDiv.innerHTML += typedValue + '<br>';
+    // Add an event listener for the form's submit event
+    form.addEventListener('submit', function(e) {
+        // Prevent the default form submission behavior (which refreshes the page)
+        e.preventDefault();
 
-    // Optional: clear the input field after submission
-    textbox-input.value = '';
+        // Get the value from the input field
+const newText = `${displayInput.value}${middle}${textInput.value}`;
+        
+
+        // Check if the input is not empty
+        if (newText.trim() !== '') {
+            // Create a new div or p element for the new line of text
+            const newParagraph = document.createElement('p');
+            newParagraph.textContent = newText;
+            
+            // Optional: add some styling for spacing
+            newParagraph.style.margin = '0';
+            newParagraph.style.padding = '2px 0';
+
+            // Append the new element to the output div
+            outputDiv.appendChild(newParagraph);
+
+            // Clear the input field for the next entry
+            textInput.value = '';
+            textInput.focus(); // Set focus back to the input field
+        }
+    });
 });
+
 
 
