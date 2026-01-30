@@ -13,12 +13,14 @@ const middle = ": ";
     // Add an event listener for the form's submit event
     form.addEventListener('submit', function(e) {
         // Prevent the default form submission behavior (which refreshes the page)
-        e.preventDefault();
+       e.preventDefault();
 
         // Get the value from the input field
 const name = (displayInput && displayInput.value && displayInput.value.trim()) ? displayInput.value.trim() : 'Anonymous';
     const msg = textInput.value || '';
     const newText = `${name}${middle}${msg}`;
+localStorage.setItem('sharedText', newText);
+
 
         
 
@@ -26,7 +28,9 @@ const name = (displayInput && displayInput.value && displayInput.value.trim()) ?
         if (newText.trim() !== '') {
             // Create a new div or p element for the new line of text
             const newParagraph = document.createElement('p');
-            newParagraph.textContent = newText;
+const sharedText = localStorage.getItem('sharedText');
+newParagraph.textContent = sharedText;
+
             
             // Optional: add some styling for spacing
             newParagraph.style.margin = '0';
