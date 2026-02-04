@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const outputDiv = document.getElementById('outputDiv');
   const displayInput = document.getElementById('displayname-input');
 
-  const API_URL = 'https://your-backend.com/messages';
+  const API_URL = 'https://ytrellvr-github-io-0x4g.onrender.com';
 
   async function fetchMessages() {
     try {
@@ -75,8 +75,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial load
   renderMessages();
 
-  // Optional: poll every 2 seconds for updates
-  setInterval(renderMessages, 2000);
+  // Optional: poll every 1 seconds for updates
+  setInterval(renderMessages, 1000);
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
