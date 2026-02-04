@@ -1,62 +1,64 @@
-// Wait for the DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('textbox-form');
   const textInput = document.getElementById('textbox-input');
   const outputDiv = document.getElementById('outputDiv');
   const displayInput = document.getElementById('displayname-input');
 
-  if (!form || !textInput || !outputDiv) {
-    console.warn('Missing required elements: textbox-form, textbox-input or outputDiv');
-    return;
-  }
+  const API_URL = 'https://your-backend.com/messages';
 
-  const MESSAGES_KEY = 'sharedMessages';
-
-  function getMessages() {
+  async function fetchMessages() {
     try {
-      return JSON.parse(localStorage.getItem(MESSAGES_KEY) || '[]');
+      const res = await fetch(API_URL);
+      if (!res.ok) throw new Error('Failed to fetch messages');
+      return await res.json();
     } catch (err) {
-      console.error('Failed to parse messages from localStorage', err);
+      console.error(err);
       return [];
     }
   }
 
-  function saveMessages(messages) {
-    localStorage.setItem(MESSAGES_KEY, JSON.stringify(messages));
+  async function postMessage(message) {
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(message)
+      });
+      if (!res.ok) throw new Error('Failed to post message');
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   function formatTimestamp(ms) {
     try {
       const d = new Date(ms);
-      return d.toLocaleString(); // change formatting if you want a different layout
-    } catch (err) {
+      return d.toLocaleString();
+    } catch {
       return '';
     }
   }
 
-  function renderMessages() {
-    // Clear existing messages
+  async function renderMessages() {
     outputDiv.innerHTML = '';
 
-    const messages = getMessages();
+    const messages = await fetchMessages();
+
     messages.forEach(m => {
       const p = document.createElement('p');
       p.style.margin = '0';
       p.style.padding = '4px 0';
 
-      // Create timestamp element
       const timeEl = document.createElement('span');
       timeEl.textContent = `[${formatTimestamp(m.time)}] `;
       timeEl.style.color = '#666';
       timeEl.style.fontSize = '0.9em';
       timeEl.style.marginRight = '6px';
 
-      // Create name element
       const nameEl = document.createElement('strong');
       nameEl.textContent = `${m.name}${m.name ? ': ' : ''}`;
       nameEl.style.marginRight = '6px';
 
-      // Create message text
       const textEl = document.createElement('span');
       textEl.textContent = m.text;
 
@@ -67,17 +69,19 @@ document.addEventListener('DOMContentLoaded', () => {
       outputDiv.appendChild(p);
     });
 
-    // Scroll to bottom so newest messages are visible
     outputDiv.scrollTop = outputDiv.scrollHeight;
   }
 
-  // Initial render on page load
+  // Initial load
   renderMessages();
 
-  form.addEventListener('submit', (e) => {
+  // Optional: poll every 2 seconds for updates
+  setInterval(renderMessages, 2000);
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const name = (displayInput && displayInput.value && displayInput.value.trim()) ? displayInput.value.trim() : 'Anonymous';
+    const name = (displayInput?.value?.trim()) || 'Anonymous';
     const msg = (textInput.value || '').trim();
     if (!msg) return;
 
@@ -87,28 +91,10 @@ document.addEventListener('DOMContentLoaded', () => {
       time: Date.now()
     };
 
-    const messages = getMessages();
-    messages.push(newMsg);
-
-    // Optionally: limit messages length to prevent unbounded growth
-    const MAX_MESSAGES = 500;
-    if (messages.length > MAX_MESSAGES) messages.splice(0, messages.length - MAX_MESSAGES);
-
-    saveMessages(messages);
-
-    // Update this tab's DOM immediately (storage event won't fire in the same tab)
-    renderMessages();
+    await postMessage(newMsg);
+    await renderMessages();
 
     textInput.value = '';
     textInput.focus();
   });
-
-  // Listen for storage changes in other tabs/windows
-  window.addEventListener('storage', (e) => {
-    if (e.key === MESSAGES_KEY) {
-      renderMessages();
-    }
-  });
 });
-
-
