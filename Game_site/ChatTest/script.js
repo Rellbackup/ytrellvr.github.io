@@ -1,52 +1,69 @@
 // Wait for the DOM to be fully loaded
-document.addEventListener('DOMContentLoaded', (event) => {
-    // Select the form, input, and output elements
-    const form = document.getElementById('textbox-form');
-    const textInput = document.getElementById('textbox-input');
-    const outputDiv = document.getElementById('outputDiv');
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('textbox-form');
+  const textInput = document.getElementById('textbox-input');
+  const outputDiv = document.getElementById('outputDiv');
+  const displayInput = document.getElementById('displayname-input');
 
-const middle = ": ";
+  if (!form || !textInput || !outputDiv) {
+    console.warn('Missing required elements: textbox-form, textbox-input or outputDiv');
+    return;
+  }
 
- const displayform = document.getElementById('display-form');
-    const displayInput = document.getElementById('displayname-input');
+  const MESSAGES_KEY = 'sharedMessages';
 
-    // Add an event listener for the form's submit event
-    form.addEventListener('submit', function(e) {
-        // Prevent the default form submission behavior (which refreshes the page)
-       e.preventDefault();
+  function getMessages() {
+    try {
+      return JSON.parse(localStorage.getItem(MESSAGES_KEY) || '[]');
+    } catch (err) {
+      console.error('Failed to parse messages from localStorage', err);
+      return [];
+    }
+  }
 
-        // Get the value from the input field
-const name = (displayInput && displayInput.value && displayInput.value.trim()) ? displayInput.value.trim() : 'Anonymous';
-    const msg = textInput.value || '';
-    const newText = `${name}${middle}${msg}`;
-localStorage.setItem('sharedText', newText);
+  function saveMessages(messages) {
+    localStorage.setItem(MESSAGES_KEY, JSON.stringify(messages));
+  }
 
-
-        
-
-        // Check if the input is not empty
-        if (newText.trim() !== '') {
-            // Create a new div or p element for the new line of text
-            const newParagraph = document.createElement('p');
-const sharedText = localStorage.getItem('sharedText');
-newParagraph.textContent = sharedText;
-
-            
-            // Optional: add some styling for spacing
-            newParagraph.style.margin = '0';
-            newParagraph.style.padding = '2px 0';
-
-            // Append the new element to the output div
-            outputDiv.appendChild(newParagraph);
-
-            // Clear the input field for the next entry
-            textInput.value = '';
-            textInput.focus(); // Set focus back to the input field
-        }
+  function renderMessages() {
+    outputDiv.innerHTML = '';
+    const messages = getMessages();
+    messages.forEach(msg => {
+      const p = document.createElement('p');
+      p.textContent = msg;
+      p.style.margin = '0';
+      p.style.padding = '2px 0';
+      outputDiv.appendChild(p);
     });
+    // scroll to bottom if desired:
+    outputDiv.scrollTop = outputDiv.scrollHeight;
+  }
+
+  // Initial render on page load
+  renderMessages();
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = (displayInput && displayInput.value && displayInput.value.trim()) ? displayInput.value.trim() : 'Anonymous';
+    const msg = (textInput.value || '').trim();
+    if (!msg) return;
+
+    const newText = `${name}: ${msg}`;
+    const messages = getMessages();
+    messages.push(newText);
+    saveMessages(messages);
+
+    // Update this tab's DOM immediately (storage event won't fire in same tab)
+    renderMessages();
+
+    textInput.value = '';
+    textInput.focus();
+  });
+
+  // Listen for changes to localStorage in other tabs/windows
+  window.addEventListener('storage', (e) => {
+    if (e.key === MESSAGES_KEY) {
+      renderMessages();
+    }
+  });
 });
-
-
-
-
-
